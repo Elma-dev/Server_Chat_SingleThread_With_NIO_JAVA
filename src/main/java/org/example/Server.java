@@ -10,7 +10,7 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Set;
 
-import static org.example.Main.handleReadWrite;
+
 
 public class Server {
     public static void main(String[] args) throws Exception {
@@ -45,6 +45,7 @@ public class Server {
                     //read a message from client and write to him:
                     ReadWriteToClient(key,selector);
                 }
+                selectionKeyIterator.remove();
             }
 
 
@@ -71,15 +72,25 @@ public class Server {
         //get the client
         SocketChannel client=(SocketChannel) key.channel();
         //create a buffer with 1024o in storage
-        ByteBuffer buffer=ByteBuffer.allocate(1024);
+        ByteBuffer buffer=ByteBuffer.allocate(256);
 
         int nbrOct=client.read(buffer);
         //if nbrOct==-1 that's mean client has been disconnected
         if(nbrOct==-1){
             System.out.println("The client "+client.getRemoteAddress()+" has been disconnected!!!");
+            //close socket Client
+            client.socket().close();
+            //cancel the key :
+            key.cancel();
         }
         else {
-            System.out.println("Msg from"+client.getRemoteAddress()+" "+buffer.array().toString());
+            //trim: delete space
+            System.out.println("Msg from"+client.getRemoteAddress()+" "+buffer.array().toString().trim());
+            buffer.clear();
+            buffer.put("Hello".getBytes());
+            //change mode of buffer to read / write
+            buffer.flip();
+            client.write(buffer);
         }
 
 
