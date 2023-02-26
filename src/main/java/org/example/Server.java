@@ -59,6 +59,8 @@ public class Server {
         //socket Channel register in selector mode read only:
         socketChannel.register(selector,SelectionKey.OP_READ);
 
+        //New Msg in the consol :
+        System.out.println("New Connection From : "+socketChannel.getRemoteAddress());
 
     }
 
