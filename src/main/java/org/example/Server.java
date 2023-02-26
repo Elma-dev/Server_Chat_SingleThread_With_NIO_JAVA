@@ -85,7 +85,7 @@ public class Server {
         }
         else {
             //trim: delete space
-            System.out.println("Msg from"+client.getRemoteAddress()+" "+buffer.array().toString().trim());
+            System.out.println("Msg from"+client.getRemoteAddress()+" "+new String(buffer.array()).trim());
             buffer.clear();
             buffer.put("Hello".getBytes());
             //change mode of buffer to read / write
