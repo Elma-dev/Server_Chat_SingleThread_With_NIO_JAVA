@@ -1,6 +1,8 @@
 package org.example;
 
 import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
@@ -37,10 +39,11 @@ public class Server {
                 SelectionKey key=selectionKeyIterator.next();
                 //key isAcceptable or isReadable type we will analyse
                 if(key.isAcceptable()){
-                    //we accept the request, and we write a msg to client
+                    //we accept the request
                     AcceptNew(key,selector);
                 } else if (key.isReadable()) {
-
+                    //read a message from client and write to him:
+                    ReadWriteToClient(key,selector);
                 }
             }
 
@@ -48,6 +51,7 @@ public class Server {
         }
 
     }
+
 
     private static void AcceptNew(SelectionKey key, Selector selector) throws Exception {
         //get the server socket channel:
@@ -58,10 +62,28 @@ public class Server {
         socketChannel.configureBlocking(false);
         //socket Channel register in selector mode read only:
         socketChannel.register(selector,SelectionKey.OP_READ);
-
         //New Msg in the consol :
         System.out.println("New Connection From : "+socketChannel.getRemoteAddress());
 
     }
+
+    private static void ReadWriteToClient(SelectionKey key, Selector selector) throws Exception {
+        //get the client
+        SocketChannel client=(SocketChannel) key.channel();
+        //create a buffer with 1024o in storage
+        ByteBuffer buffer=ByteBuffer.allocate(1024);
+
+        int nbrOct=client.read(buffer);
+        //if nbrOct==-1 that's mean client has been disconnected
+        if(nbrOct==-1){
+            System.out.println("The client "+client.getRemoteAddress()+" has been disconnected!!!");
+        }
+        else {
+            System.out.println("Msg from"+client.getRemoteAddress()+" "+buffer.array().toString());
+        }
+
+
+    }
+
 
 }
